@@ -1,6 +1,6 @@
 # flutter_tut_mynotes
 
-A new Flutter project.
+A notes application for learning Flutter
 
 ## Getting Started
 
