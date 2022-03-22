@@ -1,19 +1,13 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
-import '../firebase_options.dart';
-
 class RegisterView extends StatefulWidget {
-  const RegisterView({ Key? key }) : super(key: key);
+  const RegisterView({Key? key}) : super(key: key);
 
   @override
   State<RegisterView> createState() => _RegisterViewState();
 }
 
 class _RegisterViewState extends State<RegisterView> {
-
   late final TextEditingController _email;
   late final TextEditingController _password;
 
@@ -30,67 +24,48 @@ class _RegisterViewState extends State<RegisterView> {
     _password.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Create New User')),
-      body: FutureBuilder(
-        future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(18.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _email,
+              decoration:
+                  const InputDecoration(hintText: 'Enter your email here'),
+              autocorrect: false,
+              keyboardType: TextInputType.emailAddress,
+            ),
+            TextField(
+              controller: _password,
+              decoration:
+                  const InputDecoration(hintText: 'Enter your password here'),
+              obscureText: true,
+              enableSuggestions: false,
+              autocorrect: false,
+            ),
+            TextButton(
+              onPressed: () async {
+                final email = _email.text;
+                final password = _password.text;
 
-            // case ConnectionState.none:
-            //   break;
-            // case ConnectionState.waiting:
-            //   break;
-            // case ConnectionState.active:
-            //   break;
-
-            case ConnectionState.done:
-              return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _email,
-                      decoration: const InputDecoration(hintText: 'Enter your email here'),
-                      autocorrect: false,
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    TextField(
-                      controller: _password,
-                      decoration: const InputDecoration(hintText: 'Enter your password here'),
-                      obscureText: true,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        
-                        final email = _email.text;
-                        final password = _password.text;
-
-                        try {
-                          await FirebaseAuth.instance
-                            .createUserWithEmailAndPassword(email: email, password: password);
-                        } on FirebaseAuthException catch (e) {
-                          switch (e.code) {
-                            default: break;
-                          }
-                        }
-                      },
-                      child: const Text('Register'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-
-            default: return const Text('LOADING...');            
-          }
-        }
+                try {
+                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                      email: email, password: password);
+                } on FirebaseAuthException catch (e) {
+                  switch (e.code) {
+                    default:
+                      break;
+                  }
+                }
+              },
+              child: const Text('Register'),
+            ),
+          ],
+        ),
       ),
     );
   }
