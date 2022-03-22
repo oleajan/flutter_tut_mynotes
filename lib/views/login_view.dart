@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tut_mynotes/views/register_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -28,55 +29,62 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(18.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _email,
-              decoration:
-                  const InputDecoration(hintText: 'Enter your email here'),
-              autocorrect: false,
-              keyboardType: TextInputType.emailAddress,
-            ),
-            TextField(
-              controller: _password,
-              decoration:
-                  const InputDecoration(hintText: 'Enter your password here'),
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-            ),
-            TextButton(
-              onPressed: () async {
-                final email = _email.text;
-                final password = _password.text;
-
-                // final userCred;
-                try {
-                  final userCred = await FirebaseAuth.instance
-                      .signInWithEmailAndPassword(
-                          email: email, password: password);
-
-                  print(userCred);
-                } on FirebaseAuthException catch (e) {
-                  switch (e.code) {
-                    case 'user-not-found':
-                      print("USER NOT FOUND.");
-                      break;
-                    case 'wrong-password':
-                      print("WRONG PASSWORD");
-                      break;
-                    default:
-                      print("Oops.. Something went wrong: \n$e.code");
-                      break;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Login')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _email,
+                decoration:
+                    const InputDecoration(hintText: 'Enter your email here'),
+                autocorrect: false,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              TextField(
+                controller: _password,
+                decoration:
+                    const InputDecoration(hintText: 'Enter your password here'),
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+              ),
+              TextButton(
+                onPressed: () async {
+                  final email = _email.text;
+                  final password = _password.text;
+    
+                  // final userCred;
+                  try {
+                    final userCred = await FirebaseAuth.instance
+                        .signInWithEmailAndPassword(
+                            email: email, password: password);
+    
+                    print(userCred);
+                  } on FirebaseAuthException catch (e) {
+                    switch (e.code) {
+                      case 'user-not-found':
+                        print("USER NOT FOUND.");
+                        break;
+                      case 'wrong-password':
+                        print("WRONG PASSWORD");
+                        break;
+                      default:
+                        print("Oops.. Something went wrong: \n$e.code");
+                        break;
+                    }
                   }
-                }
+                },
+                child: const Text('Login'),
+              ),
+              TextButton(onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil('/register/', (route) => false);
               },
-              child: const Text('Login'),
-            ),
-          ],
+              child: const Text('Not registered yet? Register Here!'))
+            ],
+          ),
         ),
       ),
     );

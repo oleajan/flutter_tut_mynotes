@@ -13,18 +13,21 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(18.0),
-      child: Center(
-        child: Column(
-        children: [
-          const Text('Please verify your email address'),
-          TextButton(
-            onPressed: () async {
-              final user = FirebaseAuth.instance.currentUser;
-              await user?.sendEmailVerification();
-            },
-            child: const Text('Send email verification'))
-          ],
-        )
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Verify E-Mail')),
+        body: Center(
+          child: Column(
+          children: [
+            const Text('Please verify your email address'),
+            TextButton(
+              onPressed: () async {
+                final user = FirebaseAuth.instance.currentUser;
+                await user?.sendEmailVerification();
+              },
+              child: const Text('Send email verification'))
+            ],
+          )
+        ),
       ),
     );
   }
