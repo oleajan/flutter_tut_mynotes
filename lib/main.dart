@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_tut_mynotes/firebase_options.dart';
 import 'package:flutter_tut_mynotes/views/login_view.dart';
+import 'package:flutter_tut_mynotes/views/notes_view.dart';
 import 'package:flutter_tut_mynotes/views/register_view.dart';
 import 'package:flutter_tut_mynotes/views/verify_email_view.dart';
 
@@ -16,7 +18,8 @@ void main() {
     home: const HomePage(),
     routes: {
       '/login/': (context) => const LoginView(),
-      '/register/': (context) => const RegisterView()
+      '/register/': (context) => const RegisterView(),
+      '/mynotes/': (context) => const NotesView()
     },
   ));
 }
@@ -42,7 +45,7 @@ class HomePage extends StatelessWidget {
 
             if (user != null) {
               if (user.emailVerified) {
-                return const Text('E-Mail verfied');
+                return const NotesView();
               } else {                
                 // * after verification the user needs to be relogged in
                 // * for the data to be reloaded
@@ -53,7 +56,7 @@ class HomePage extends StatelessWidget {
             }
             
           default:
-            return const Text('Loading');
+            return const CircularProgressIndicator();
         }
       },
     );
