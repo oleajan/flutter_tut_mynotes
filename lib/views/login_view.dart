@@ -69,8 +69,23 @@ class _LoginViewState extends State<LoginView> {
                     );
 
                     devtools.log(userCred.toString());
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil(notesRoute, (route) => false);
+
+                    final user = FirebaseAuth.instance.currentUser;
+
+                    if (user?.emailVerified ?? false) {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        notesRoute,
+                        (route) => false,
+                      );
+                    } else {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        verifyEmailRoute,
+                        (route) => false,
+                      );
+                    }
+                    
                   } on FirebaseAuthException catch (e) {
                     switch (e.code) {
                       case 'user-not-found':
@@ -89,7 +104,6 @@ class _LoginViewState extends State<LoginView> {
                   } catch (e) {
                     devtools.log(e.toString());
                   }
-
                 },
                 child: const Text('Login'),
               ),
