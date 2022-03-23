@@ -61,8 +61,22 @@ class _RegisterViewState extends State<RegisterView> {
                   try {
                     await FirebaseAuth.instance.createUserWithEmailAndPassword(
                         email: email, password: password);
+
+                    
                   } on FirebaseAuthException catch (e) {
                     switch (e.code) {
+                      case 'weak-password':
+                        await showErrorDialog(context, 'Weak Password');
+                        devtools.log('weak password');
+                        break;
+                      case 'email-already-in-use':
+                        await showErrorDialog(context, 'Email is already in use');
+                        devtools.log('email already in use');
+                        break;
+                      case 'invalid-email':
+                        await showErrorDialog(context, 'Invalid Email');
+                        devtools.log('invalid email');
+                        break;
                       default:
                         await showErrorDialog(context, 'Error: ${e.code}');
                         devtools.log("Error: ${e.code}");
