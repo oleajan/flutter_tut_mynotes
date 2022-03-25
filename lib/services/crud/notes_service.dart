@@ -6,20 +6,79 @@ import 'package:path_provider/path_provider.dart'
     show MissingPlatformDirectoryException, getApplicationDocumentsDirectory;
 import 'package:path/path.dart' show join;
 
-class DatabaseAlreadyOpenException implements Exception {}
-
-class UnableToGetDocumentsDirectory implements Exception {}
-
-class DatabaseIsNotOpenException implements Exception {}
-
-class CouldNotDeleteUser implements Exception {}
-
-class UserAlreadyExists implements Exception {}
-
-class CouldNotFindUser implements Exception {}
+import 'crud_exceptions.dart';
 
 class NotesService {
   Database? _database;
+
+  Future<DatabaseNotes> updateNote ({required DatabaseNotes note, required String text}) async {
+    final database = _getDatabaseOrThrow();
+
+    await getNote(id: note.id);
+
+    final updatesCount = await database.update(noteTable, {
+      textColumn: text,
+    });
+
+    if (updatesCount == 0) {
+      throw CouldNotUpdateNote;
+    } else {
+      return await getNote(id: note.id);
+    }
+  }
+
+  Future<Iterable<DatabaseNotes>> getAllNotes() async {
+    final database = _getDatabaseOrThrow();
+
+    final notes = await database.query(noteTable);
+    return notes.map((e) => DatabaseNotes.fromRow(e));
+  }
+
+  Future<DatabaseNotes> getNote({required int id}) async {
+    final database = _getDatabaseOrThrow();
+
+    final notes = await database.query(
+      noteTable,
+      limit: 1,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (notes.isEmpty) throw CouldNotFindNote;
+
+    return DatabaseNotes.fromRow(notes.first);
+  }
+
+  Future<int> deleteAllNotes() async {
+    final database = _getDatabaseOrThrow();
+    return await database.delete(noteTable);
+  }
+
+  Future<void> deleteNote({required int id}) async {
+    final database = _getDatabaseOrThrow();
+
+    final deletedCount = await database.delete(
+      noteTable,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (deletedCount == 0) throw CouldNotDeleteNote;
+  }
+
+  Future<DatabaseNotes> createNote({required DatabaseUser owner}) async {
+    final database = _getDatabaseOrThrow();
+
+    final dbUser = await getUser(email: owner.email);
+    if (dbUser != owner) throw CouldNotFindUser();
+
+    const text = '';
+    final noteId = await database
+        .insert(noteTable, {userIdColumn: owner.id, textColumn: text});
+
+    final note = DatabaseNotes(id: noteId, userId: owner.id, text: text);
+    return note;
+  }
 
   Future<DatabaseUser> getUser({required String email}) async {
     final database = _getDatabaseOrThrow();
