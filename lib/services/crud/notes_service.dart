@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:developer' as devtools;
-
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart'
@@ -18,6 +16,18 @@ class NotesService {
   // controls the _notes
   final _notesStreamController = StreamController<List<DatabaseNotes>>.broadcast();
 
+    Future<DatabaseUser> getOrCreateUser({required String email}) async {
+    try {
+      final user = await getUser(email: email);
+      return user;
+    } on CouldNotFindUser {
+      final createdUser = await createUser(email: email);
+      return createdUser;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> _cacheNotes() async {
     final allNotes = await getAllNotes();
     _notes = allNotes.toList();
@@ -25,6 +35,7 @@ class NotesService {
   }
 
   Future<DatabaseNotes> updateNote ({required DatabaseNotes note, required String text}) async {
+    await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
     await getNote(id: note.id);
@@ -44,6 +55,7 @@ class NotesService {
   }
 
   Future<Iterable<DatabaseNotes>> getAllNotes() async {
+    await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
     final notes = await database.query(noteTable);
@@ -51,6 +63,7 @@ class NotesService {
   }
 
   Future<DatabaseNotes> getNote({required int id}) async {
+    await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
     final notes = await database.query(
@@ -70,6 +83,7 @@ class NotesService {
   }
 
   Future<int> deleteAllNotes() async {
+    await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
     final deleteCount =  await database.delete(noteTable);
 
@@ -80,6 +94,7 @@ class NotesService {
   }
 
   Future<void> deleteNote({required int id}) async {
+    await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
     final deletedCount = await database.delete(
@@ -95,6 +110,7 @@ class NotesService {
   }
 
   Future<DatabaseNotes> createNote({required DatabaseUser owner}) async {
+    await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
     final dbUser = await getUser(email: owner.email);
@@ -113,6 +129,7 @@ class NotesService {
   }
 
   Future<DatabaseUser> getUser({required String email}) async {
+    await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
     final result = await database.query(
@@ -130,6 +147,7 @@ class NotesService {
   }
 
   Future<DatabaseUser> createUser({required String email}) async {
+    await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
     final results = await database.query(
@@ -149,6 +167,7 @@ class NotesService {
   }
 
   Future<void> deleteUser({required String email}) async {
+    await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
     final deletedCount = await database.delete(
@@ -182,31 +201,35 @@ class NotesService {
   }
 
   Future<void> open() async {
+    await _ensureDbIsOpen();
     if (_database != null) throw DatabaseAlreadyOpenException();
 
+    String dbPath = "";
     try {
       final docsPath = await getApplicationDocumentsDirectory();
-      final dbPath = join(docsPath.path, dbName);
+      dbPath = join(docsPath.path, dbName);
       final database = await openDatabase(dbPath);
       _database = database;
 
       const createUserTable = '''
-        CREATE TABLE IF NOT EXISTS "user" (
-          "id" INTEGER NOT NULL,
-          "email" TEXT NOT NULL UNIQUE,
-          PRIMARY KEY ("id" AUTOINCREMENT)
+        CREATE TABLE IF NOT EXISTS user (
+            id    INTEGER PRIMARY KEY ASC AUTOINCREMENT
+                          UNIQUE
+                          NOT NULL,
+            email TEXT    UNIQUE
+                          NOT NULL
         );
       ''';
       await database.execute(createUserTable);
 
       const createNoteTable = ''' 
-        CREATE TABLE IF NOT EXISTS "note" (
-          "id" INTEGER NOT NULL,
-          "user_id" INTEGER NOT NULL,
-          "text" TEXT,
-          FOREIGN KEY("user_id") REFERENCES "user("id"),
-          PRIMARY KEY ("id" AUTOINCREMENT)
-        );
+        CREATE TABLE IF NOT EXISTS note (
+        id      INTEGER PRIMARY KEY ASC AUTOINCREMENT
+                    NOT NULL
+                    UNIQUE,
+        user_id INTEGER REFERENCES user (id),
+        text    TEXT
+      );
       ''';
       await database.execute(createNoteTable);
 
@@ -214,8 +237,14 @@ class NotesService {
 
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentsDirectory();
-    } catch (e) {
-      devtools.log(e.toString());
+    }
+  }
+
+  Future<void> _ensureDbIsOpen() async {
+    try {
+      await open();
+    } on DatabaseAlreadyOpenException {
+      // empty
     }
   }
 }
