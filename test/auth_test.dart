@@ -35,7 +35,7 @@ void main() {
     );
 
     test('Create user should delecgate to logIn function', () async {
-      final badUser = provider.createUser(email: 'test@test.com', password: 'anypass');
+      final badUser = provider.createUser(email: 'foo@bar.com', password: 'anypass');
       expect(badUser, throwsA(const TypeMatcher<UserNotFoundAuthException>()));
 
       final badUser1 = provider.createUser(email: 'anyemmail@test.com', password: '123456');
@@ -99,10 +99,10 @@ class MockAuthProvider implements AuthProvider {
     required String password,
   }) async {
     if (!isInitialized) throw NotInitializedException();
-    if (email == 'test@test.com') throw UserNotFoundAuthException();
+    if (email == 'foo@bar.com') throw UserNotFoundAuthException();
     if (password == '123456') throw WrongPasswordAuthException();   
 
-    const user = AuthUser(isEmailVerified: false);
+    const user = AuthUser(isEmailVerified: false, email: 'foo@bar.com');
     _user = user;
 
     return Future.value(user);
@@ -124,7 +124,7 @@ class MockAuthProvider implements AuthProvider {
     final user = _user;
     if (user == null) throw UserNotFoundAuthException();
 
-    const newUser = AuthUser(isEmailVerified: true);
+    const newUser = AuthUser(isEmailVerified: true, email: 'foo@bar.com');
     _user = newUser;
   }
 }
