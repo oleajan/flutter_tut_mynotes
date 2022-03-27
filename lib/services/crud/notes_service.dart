@@ -16,12 +16,12 @@ class NotesService {
   factory NotesService() => _shared;
   
   // our source of truth
-  List<DatabaseNotes> _notes = [];
+  List<DatabaseNote> _notes = [];
 
   // controls the _notes
-  final _notesStreamController = StreamController<List<DatabaseNotes>>.broadcast();
+  final _notesStreamController = StreamController<List<DatabaseNote>>.broadcast();
 
-  Stream<List<DatabaseNotes>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
   Future<DatabaseUser> getOrCreateUser({required String email}) async {
     try {
@@ -41,7 +41,7 @@ class NotesService {
     _notesStreamController.add(_notes);
   }
 
-  Future<DatabaseNotes> updateNote ({required DatabaseNotes note, required String text}) async {
+  Future<DatabaseNote> updateNote ({required DatabaseNote note, required String text}) async {
     await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
@@ -61,14 +61,14 @@ class NotesService {
    return newNote;
   }
 
-  Future<Iterable<DatabaseNotes>> getAllNotes() async {
+  Future<Iterable<DatabaseNote>> getAllNotes() async {
     await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
     final notes = await database.query(noteTable);
-    return notes.map((e) => DatabaseNotes.fromRow(e));
+    return notes.map((e) => DatabaseNote.fromRow(e));
   }
 
-  Future<DatabaseNotes> getNote({required int id}) async {
+  Future<DatabaseNote> getNote({required int id}) async {
     await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
@@ -81,7 +81,7 @@ class NotesService {
 
     if (notes.isEmpty) throw CouldNotFindNote;
 
-    final note = DatabaseNotes.fromRow(notes.first);
+    final note = DatabaseNote.fromRow(notes.first);
     _notes.removeWhere((element) => element.id == id);
     _notes.add(note);
     _notesStreamController.add(_notes);
@@ -115,7 +115,7 @@ class NotesService {
     _notesStreamController.add(_notes);
   }
 
-  Future<DatabaseNotes> createNote({required DatabaseUser owner}) async {
+  Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
     await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
 
@@ -126,7 +126,7 @@ class NotesService {
     final noteId = await database
         .insert(noteTable, {userIdColumn: owner.id, textColumn: text});
 
-    final note = DatabaseNotes(id: noteId, userId: owner.id, text: text);
+    final note = DatabaseNote(id: noteId, userId: owner.id, text: text);
 
     _notes.add(note);
     _notesStreamController.add(_notes);
@@ -279,18 +279,18 @@ class DatabaseUser {
 }
 
 // @immutable
-class DatabaseNotes {
+class DatabaseNote {
   final int id;
   final int userId;
   final String text;
 
-  DatabaseNotes({
+  DatabaseNote({
     required this.id,
     required this.userId,
     required this.text,
   });
 
-  DatabaseNotes.fromRow(Map<String, Object?> map)
+  DatabaseNote.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
         userId = map[userIdColumn] as int,
         text = map[textColumn] as String;
@@ -299,7 +299,7 @@ class DatabaseNotes {
   String toString() => 'Note, Id=$id, userId = $userId';
 
   @override
-  bool operator ==(covariant DatabaseNotes other) => id == other.id;
+  bool operator ==(covariant DatabaseNote other) => id == other.id;
 
   @override
   int get hashCode => id.hashCode;
