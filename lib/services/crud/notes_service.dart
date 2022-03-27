@@ -9,12 +9,19 @@ import 'crud_exceptions.dart';
 
 class NotesService {
   Database? _database;
+
+  // hacky way to to singletons
+  NotesService._sharedInstance();
+  static final NotesService _shared = NotesService._sharedInstance();
+  factory NotesService() => _shared;
   
   // our source of truth
   List<DatabaseNotes> _notes = [];
 
   // controls the _notes
   final _notesStreamController = StreamController<List<DatabaseNotes>>.broadcast();
+
+  Stream<List<DatabaseNotes>> get allNotes => _notesStreamController.stream;
 
     Future<DatabaseUser> getOrCreateUser({required String email}) async {
     try {
@@ -57,7 +64,6 @@ class NotesService {
   Future<Iterable<DatabaseNotes>> getAllNotes() async {
     await _ensureDbIsOpen();
     final database = _getDatabaseOrThrow();
-
     final notes = await database.query(noteTable);
     return notes.map((e) => DatabaseNotes.fromRow(e));
   }
@@ -201,7 +207,6 @@ class NotesService {
   }
 
   Future<void> open() async {
-    await _ensureDbIsOpen();
     if (_database != null) throw DatabaseAlreadyOpenException();
 
     String dbPath = "";
