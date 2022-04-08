@@ -10,16 +10,22 @@ import 'crud_exceptions.dart';
 class NotesService {
   Database? _database;
 
-  // hacky way to to singletons
-  NotesService._sharedInstance();
-  static final NotesService _shared = NotesService._sharedInstance();
-  factory NotesService() => _shared;
-  
   // our source of truth
   List<DatabaseNote> _notes = [];
 
+  // hacky way to to singletons
+  static final NotesService _shared = NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
+  factory NotesService() => _shared;  
+
   // controls the _notes
-  final _notesStreamController = StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
