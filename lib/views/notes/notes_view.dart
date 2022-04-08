@@ -4,6 +4,9 @@ import 'dart:developer' as devtools show log;
 import 'package:flutter_tut_mynotes/constants/routes.dart';
 import 'package:flutter_tut_mynotes/services/auth/auth_service.dart';
 import 'package:flutter_tut_mynotes/services/crud/notes_service.dart';
+import 'package:flutter_tut_mynotes/views/notes/notes_list_view.dart';
+
+import '../../utilities/dialogs/logout_dialog.dart';
 
 enum MenuAction { logout }
 
@@ -37,10 +40,11 @@ class _NotesViewState extends State<NotesView> {
       appBar: AppBar(
         title: const Text('My Notes'),
         actions: [
-          IconButton(onPressed: () {
-            Navigator.of(context).pushNamed(newNoteRoute);
-          }, 
-          icon: const Icon(Icons.add)),
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(newNoteRoute);
+              },
+              icon: const Icon(Icons.add)),
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
               switch (value) {
@@ -76,27 +80,21 @@ class _NotesViewState extends State<NotesView> {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
                       return const Text('Waiting for all notes');
+
                     case ConnectionState.active:
                       if (snapshot.hasData) {
                         final allNotes = snapshot.data as List<DatabaseNote>;
-                        return ListView.builder(
-                          itemCount: allNotes.length,
-                          itemBuilder: (context, index) {
-                            final note = allNotes[index];
-                            return ListTile(
-                              title: Text(
-                                note.text, 
-                                maxLines: 1,
-                                softWrap: true,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
+                        return NotesListView(
+                          notes: allNotes,
+                          onDeleteNote: (note) async {
+                            await _notesService.deleteNote(id: note.id);
                           },
                         );
                       } else {
                         return const CircularProgressIndicator();
                       }
-                    default: 
+
+                    default:
                       return const CircularProgressIndicator();
                   }
                 },
@@ -108,28 +106,4 @@ class _NotesViewState extends State<NotesView> {
       ),
     );
   }
-}
-
-Future<bool> showLogoutDialog(BuildContext context) {
-  return showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Sign Out'),
-          content: const Text('Are you sure you want to sign out?'),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-                child: const Text('Cancel')),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Confirm'),
-            ),
-          ],
-        );
-      }).then((value) => value ?? false);
 }
