@@ -69,12 +69,6 @@ class _NotesViewState extends State<NotesView> {
         future: _notesService.getOrCreateUser(email: userEmail),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
-            // case ConnectionState.none:
-            //   break;
-            // case ConnectionState.waiting:
-            // break;
-            // case ConnectionState.active:
-            //  break;
             case ConnectionState.done:
               return StreamBuilder(
                 stream: _notesService.allNotes,
