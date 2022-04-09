@@ -4,6 +4,9 @@ import 'package:flutter_tut_mynotes/utilities/generics/get_arguments.dart';
 
 import 'package:flutter_tut_mynotes/services/cloud/cloud_note.dart';
 import 'package:flutter_tut_mynotes/services/cloud/firebase_cloud_storage.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../../utilities/dialogs/cannot_share_empty_note_dialog.dart';
 
 class CreateUpdateNoteView extends StatefulWidget {
   const CreateUpdateNoteView({Key? key}) : super(key: key);
@@ -47,7 +50,7 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
       _textController.text = widgetNote.text;
       return widgetNote;
     }
-    
+
     final existingNote = _note;
     if (existingNote != null) return existingNote;
 
@@ -61,7 +64,8 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
 
   void _deleteIfTextEmpty() async {
     final note = _note;
-    if (_textController.text.isEmpty && note != null) await _notesService.deleteNote(documentId: note.documentId);
+    if (_textController.text.isEmpty && note != null)
+      await _notesService.deleteNote(documentId: note.documentId);
   }
 
   void _saveIfTextEmpty() async {
@@ -83,29 +87,41 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('New Note'),
-      ),
-      body: FutureBuilder(
-        future: createOrGetExistingNote(context),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              _setupTextControllerListener();
-              return TextField(
-                controller: _textController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                decoration: const InputDecoration(
-                  hintText: 'Start typing your note....',
-                  border: InputBorder.none
-                ),
-              );
-            default:
-              return const CircularProgressIndicator();
-          }
-        },
-      )
-    );
+        appBar: AppBar(
+          title: const Text('New Note'),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                final text = _textController.text;
+
+                if (_note == null || text.isEmpty){
+                  await showCannotShareEmptyNotesDialog(context);
+                } else {
+                  Share.share(text);
+                }
+              },
+              icon: const Icon(Icons.share),
+            ),
+          ],
+        ),
+        body: FutureBuilder(
+          future: createOrGetExistingNote(context),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                _setupTextControllerListener();
+                return TextField(
+                  controller: _textController,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                      hintText: 'Start typing your note....',
+                      border: InputBorder.none),
+                );
+              default:
+                return const CircularProgressIndicator();
+            }
+          },
+        ));
   }
 }
