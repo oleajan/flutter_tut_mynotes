@@ -64,8 +64,9 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
 
   void _deleteIfTextEmpty() async {
     final note = _note;
-    if (_textController.text.isEmpty && note != null)
+    if (_textController.text.isEmpty && note != null) {
       await _notesService.deleteNote(documentId: note.documentId);
+    }
   }
 
   void _saveIfTextEmpty() async {
@@ -87,41 +88,42 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('New Note'),
-          actions: [
-            IconButton(
-              onPressed: () async {
-                final text = _textController.text;
+      appBar: AppBar(
+        title: const Text('New Note'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final text = _textController.text;
 
-                if (_note == null || text.isEmpty){
-                  await showCannotShareEmptyNotesDialog(context);
-                } else {
-                  Share.share(text);
-                }
-              },
-              icon: const Icon(Icons.share),
-            ),
-          ],
-        ),
-        body: FutureBuilder(
-          future: createOrGetExistingNote(context),
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                _setupTextControllerListener();
-                return TextField(
-                  controller: _textController,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                      hintText: 'Start typing your note....',
-                      border: InputBorder.none),
-                );
-              default:
-                return const CircularProgressIndicator();
-            }
-          },
-        ));
+              if (_note == null || text.isEmpty) {
+                await showCannotShareEmptyNotesDialog(context);
+              } else {
+                Share.share(text);
+              }
+            },
+            icon: const Icon(Icons.share),
+          ),
+        ],
+      ),
+      body: FutureBuilder(
+        future: createOrGetExistingNote(context),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              _setupTextControllerListener();
+              return TextField(
+                controller: _textController,
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                decoration: const InputDecoration(
+                    hintText: 'Start typing your note....',
+                    border: InputBorder.none),
+              );
+            default:
+              return const CircularProgressIndicator();
+          }
+        },
+      ),
+    );
   }
 }
