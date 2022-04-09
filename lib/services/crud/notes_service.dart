@@ -237,7 +237,10 @@ class NotesService {
   }
 
   Future<void> open() async {
-    if (_database != null) throw DatabaseAlreadyOpenException();
+    if (_database != null) {
+      // throw DatabaseAlreadyOpenException();
+      return;
+    }
 
     String dbPath = "";
     try {
