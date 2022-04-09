@@ -5,7 +5,6 @@ import 'package:flutter_tut_mynotes/constants/routes.dart';
 import 'package:flutter_tut_mynotes/services/auth/auth_service.dart';
 import 'package:flutter_tut_mynotes/services/cloud/cloud_note.dart';
 import 'package:flutter_tut_mynotes/services/cloud/firebase_cloud_storage.dart';
-import 'package:flutter_tut_mynotes/services/crud/notes_service.dart';
 import 'package:flutter_tut_mynotes/views/notes/notes_list_view.dart';
 
 import '../../utilities/dialogs/logout_dialog.dart';

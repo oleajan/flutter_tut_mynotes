@@ -1,5 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_tut_mynotes/firebase_options.dart';
 import 'package:flutter_tut_mynotes/services/auth/auth_provider.dart';
 import 'package:flutter_tut_mynotes/services/auth/auth_user.dart';
 import 'package:flutter_tut_mynotes/services/auth/firebase_auth_provider.dart';
