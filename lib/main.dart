@@ -57,3 +57,21 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
+// Class for practicing bloc implementation
+// basic bloc counter
+class CounterPage extends StatefulWidget {
+  const CounterPage({ Key? key }) : super(key: key);
+
+  @override
+  State<CounterPage> createState() => _CounterPageState();
+}
+
+class _CounterPageState extends State<CounterPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      
+    );
+  }
+}
