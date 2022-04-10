@@ -5,7 +5,7 @@ import 'dart:developer' as devtools show log;
 import 'package:flutter_tut_mynotes/constants/routes.dart';
 import 'package:flutter_tut_mynotes/services/auth/auth_exceptions.dart';
 import 'package:flutter_tut_mynotes/services/auth/bloc/auth_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' show ReadContext;
 import 'package:flutter_tut_mynotes/services/auth/bloc/auth_event.dart';
 
 import '../utilities/dialogs/error_dialog.dart';
