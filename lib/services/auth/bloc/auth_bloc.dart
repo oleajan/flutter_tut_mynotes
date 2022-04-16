@@ -5,12 +5,6 @@ import 'package:flutter_tut_mynotes/services/auth/bloc/auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(AuthProvider provider) : super(const AuthStateUninitialized()) {
-    //* send email verification
-    on<AuthEventSendEmailVerification>((event, emit) async {
-      await provider.sendEmailVerification();
-      emit(state);
-    });
-    
     //* initialize
     on<AuthEventInitialize>((event, emit) async {
       await provider.initialize();
@@ -39,6 +33,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
      } 
     });
 
+    //* send email verification
+    on<AuthEventSendEmailVerification>((event, emit) async {
+      await provider.sendEmailVerification();
+      emit(state);
+    });
+    
     //* login
     on<AuthEventLogin>((event, emit) async {
       emit(const AuthStateLoggedOut(exception: null, isLoading: true));
