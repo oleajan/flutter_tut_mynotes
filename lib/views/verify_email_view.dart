@@ -13,11 +13,11 @@ class VerifyEmailView extends StatefulWidget {
 class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(18.0),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Verify E-Mail')),
-        body: Center(
+    return Scaffold(
+      appBar: AppBar(title: const Text('Verify E-Mail')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
               const Text('We have already sent an email verification to your account.'),
