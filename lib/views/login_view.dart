@@ -3,7 +3,6 @@ import 'package:flutter_tut_mynotes/services/auth/auth_exceptions.dart';
 import 'package:flutter_tut_mynotes/services/auth/bloc/auth_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show BlocListener, ReadContext;
 import 'package:flutter_tut_mynotes/services/auth/bloc/auth_event.dart';
-import 'package:flutter_tut_mynotes/utilities/dialogs/loading_dialog.dart';
 
 import '../services/auth/bloc/auth_state.dart';
 import '../utilities/dialogs/error_dialog.dart';
